@@ -6,7 +6,6 @@ const games = require('./helper').games
 const scores = require('./helper').scores
 const Game = require('../models/game')
 const User = require('../models/user')
-const Score = require('../models/score')
 const bcrypt = require('bcrypt')
 
 let token
@@ -15,7 +14,6 @@ let game
 beforeEach(async () => {
     await Game.deleteMany({})
     await User.deleteMany({})
-    await Score.deleteMany({})
 
     game = new Game(games[0])
     await game.save()
@@ -58,7 +56,7 @@ describe('POST /api/games/:gameId/scores/', () => {
             .expect(401)
     })
     test('adds a new score', async () => {
-        const initialScores = await Score.find({})
+        const initialScores = (await Game.findById(game.id)).scores
 
         const data = {
             hash: 'testhash',
@@ -70,12 +68,10 @@ describe('POST /api/games/:gameId/scores/', () => {
             .send(data)
             .set('Authorization', token)
 
-        const scoresAfter = await Score.find({})
+        const scoresAfter = (await Game.findById(game.id)).scores
         expect(scoresAfter.length).toEqual(initialScores.length + 1)
 
-        const score = await Score.findOne({...scores[0]})
-
-        expect(score.game.toString()).toEqual(game._id)
+        const score = scoresAfter[0]
 
         const g = await Game.findById(game.id)
         expect(g.scores[0].scorer).toEqual(scores[0].scorer)

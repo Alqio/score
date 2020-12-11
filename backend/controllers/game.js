@@ -1,8 +1,7 @@
 const router = require('express').Router()
 const User = require('../models/user')
 const Game = require('../models/game')
-const Score = require('../models/score')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
 
 const checkToken = (token) => {
     if (!token || !token.id) {
@@ -37,14 +36,7 @@ router.post('', async (request, response) => {
 router.get('/:id', async (request, response) => {
     const game = await Game.findById(request.params.id)
 
-    const scores = (await Score.find({game: game.id})).sort((a, b) => a.score - b.score)
-
-    const result = {
-        ...game,
-        scores
-    }
-
-    response.status(200).json(result)
+    response.status(200).json(game)
 
 })
 
@@ -70,6 +62,34 @@ router.delete('/:id/', async (request, response) => {
     const game = await Game.deleteOne({_id: request.params.id})
 
     response.send(game)
+
+})
+
+router.post('/:gameId/scores/', async (request, response) => {
+
+    const body = request.body
+    const hash = body.hash
+    const game = await Game.findById(request.params.gameId)
+
+    if (hash !== game.hash) {
+        return response.status(401).end()
+    }
+
+    const score = {
+        score: body.score,
+        scorer: body.scorer,
+        date: new Date(body.date),
+    }
+
+    const newScores = [...game.scores, score]
+
+    const result = await Game.findOneAndUpdate(
+        {_id: request.params.gameId},
+        {scores: newScores},
+        {runValidators: true}
+    )
+
+    response.status(201).json(result)
 
 })
 

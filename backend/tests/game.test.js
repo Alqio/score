@@ -5,7 +5,6 @@ const api = supertest(app)
 const games = require('./helper').games
 const Game = require('../models/game')
 const User = require('../models/user')
-const Score = require('../models/score')
 const bcrypt = require('bcrypt')
 
 let token
@@ -14,7 +13,6 @@ let userId
 beforeEach(async () => {
     await Game.deleteMany({})
     await User.deleteMany({})
-    await Score.deleteMany({})
 
     let noteObject = new Game(games[0])
     await noteObject.save()
@@ -56,14 +54,12 @@ describe('GET /api/games', () => {
 
     })
     test('returns scores when requested by id', async () => {
-
-
         const games = await Game.find({})
         const game = games[0]
 
         const res = await api.get('/api/games/' + game.id)
 
-        expect(res.scores).toBeDefined()
+        expect(res.body.scores).toBeDefined()
 
     })
 })

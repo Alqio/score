@@ -8,11 +8,16 @@ const gameSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    scores: [
-        {
-            
-        }
-    ]
+    scores: {
+        type: [
+            {
+                score: Number,
+                date: Date,
+                scorer: String
+            }
+        ],
+        default: []
+    }
 })
 gameSchema.set('toJSON', {
     transform: (document, returnedObject) => {
