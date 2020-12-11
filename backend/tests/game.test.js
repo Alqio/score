@@ -55,6 +55,17 @@ describe('GET /api/games', () => {
         expect(contents[0]).toEqual('testhash')
 
     })
+    test('returns scores when requested by id', async () => {
+
+
+        const games = await Game.find({})
+        const game = games[0]
+
+        const res = await api.get('/api/games/' + game.id)
+
+        expect(res.scores).toBeDefined()
+
+    })
 })
 
 describe('POST /api/games', () => {

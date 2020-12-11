@@ -56,7 +56,7 @@ router.post('/:id/createHash', async (request, response) => {
 
     const hash = await bcrypt.hash(game.id, 1)
 
-    const updated = await Game.findOneAndUpdate({_id: request.params.id}, {...game, hash}, {runValidators: true})
+    await Game.findOneAndUpdate({_id: request.params.id}, {...game, hash}, {runValidators: true})
 
     response.send(hash)
 

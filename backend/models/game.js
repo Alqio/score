@@ -7,7 +7,12 @@ const gameSchema = mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    scores: [
+        {
+            
+        }
+    ]
 })
 gameSchema.set('toJSON', {
     transform: (document, returnedObject) => {

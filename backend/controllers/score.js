@@ -18,7 +18,7 @@ router.post('/', async (request, response) => {
     const game = await Game.findById(request.params.gameId)
 
     if (hash !== game.hash) {
-        return response.status(403)
+        return response.status(401)
     }
 
     const score = new Score({
