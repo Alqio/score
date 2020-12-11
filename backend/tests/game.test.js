@@ -5,6 +5,7 @@ const api = supertest(app)
 const games = require('./helper').games
 const Game = require('../models/game')
 const User = require('../models/user')
+const Score = require('../models/score')
 const bcrypt = require('bcrypt')
 
 let token
@@ -13,11 +14,9 @@ let userId
 beforeEach(async () => {
     await Game.deleteMany({})
     await User.deleteMany({})
+    await Score.deleteMany({})
 
     let noteObject = new Game(games[0])
-    await noteObject.save()
-
-    noteObject = new Game(games[1])
     await noteObject.save()
 
     const passwordHash = await bcrypt.hash('sekret', 10)
@@ -28,54 +27,49 @@ beforeEach(async () => {
     userId = user.id
 
     const res = await api.post('/api/login').send({username: 'test_user1', password: 'sekret'})
-    token = "Bearer " + res.body.token
+    token = 'Bearer ' + res.body.token
 })
 
 
-describe('GET /api/blogs', () => {
+describe('GET /api/games', () => {
     test('returns json', async () => {
         await api
-            .get('/api/blogs')
+            .get('/api/games')
             .expect(200)
             .expect('Content-Type', /application\/json/)
 
     })
-    test('returns blogs with id field, not _id', async () => {
-        const res = await api.get('/api/blogs')
+    test('returns games with id field, not _id', async () => {
+        const res = await api.get('/api/games')
 
         const b = res.body
 
         expect(b[0].id).toBeDefined()
-        expect(b[1].id).toBeDefined()
         expect(b[0]._id).not.toBeDefined()
-        expect(b[1]._id).not.toBeDefined()
 
     })
-    test('returns correct blogs', async () => {
-        const res = await api.get('/api/blogs')
+    test('returns correct games', async () => {
+        const res = await api.get('/api/games')
 
-        const contents = res.body.map(r => r.id)
-        expect(contents[0]).toEqual('5a422a851b54a676234d17f7')
-        expect(contents[1]).toEqual('5a422aa71b54a676234d17f8')
+        const contents = res.body.map(r => r.hash)
+        expect(contents[0]).toEqual('testhash')
 
     })
 })
 
-describe('POST /api/blogs', () => {
+describe('POST /api/games', () => {
     beforeEach(async () => {
-        await Blog.deleteMany({title: 'Test blog'})
+        await Game.deleteMany({name: 'Test game'})
     })
 
-    const blog = {
-        title: 'Test blog',
-        author: 'Meikä mandoliini',
-        url: 'google.com',
+    const game = {
+        name: 'Test game'
     }
 
     test('returns json', async () => {
         await api
-            .post('/api/blogs')
-            .send(blog)
+            .post('/api/games')
+            .send(game)
             .set('Authorization', token)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -83,80 +77,59 @@ describe('POST /api/blogs', () => {
     })
     test('fails without token', async () => {
         await api
-            .post('/api/blogs')
-            .send(blog)
+            .post('/api/games')
+            .send(game)
             .expect(401)
     })
-    test('adds a new blog', async () => {
-        const initalBlogs = await Blog.find({})
+    test('adds a new game', async () => {
+        const initalgames = await Game.find({})
 
-        await api.post('/api/blogs').send(blog).set('Authorization', token)
+        await api.post('/api/games').send(game).set('Authorization', token)
 
-        const blogsAfter = await Blog.find({})
-        expect(blogsAfter.length).toEqual(initalBlogs.length + 1)
+        const gamesAfter = await Game.find({})
+        expect(gamesAfter.length).toEqual(initalgames.length + 1)
 
         const user = await User.findOne({username: 'test_user1'})
 
-        const b = await Blog.find({title: 'Test blog'})
+        const b = await Game.find({name: 'Test game'})
         expect(b[0].user.toString()).toEqual(user.id)
 
     })
-    test('adds correct blog', async () => {
-        await api.post('/api/blogs').send(blog).set('Authorization', token)
-        const addedBlog = await Blog.findOne({title: 'Test blog'})
-        expect(addedBlog).toBeDefined()
+    test('adds correct game', async () => {
+        await api.post('/api/games').send(game).set('Authorization', token)
+        const addedGame = await Game.findOne({name: 'Test game'})
+        expect(addedGame).toBeDefined()
 
     })
-    test('adding a blog without likes should set them to 0', async () => {
-        await api.post('/api/blogs').send(blog).set('Authorization', token)
-        const addedBlog = await Blog.findOne({title: 'Test blog'})
-        expect(addedBlog.likes).toEqual(0)
+    test('adding a game should not set hash', async () => {
+        await api.post('/api/games').send(game).set('Authorization', token)
+        const addedGame = await Game.findOne({name: 'Test game'})
+        expect(addedGame.hash).not.toBeDefined()
 
-    })
-    test('adding a blog without url or title should respond 400', async () => {
-        await api
-            .post('/api/blogs')
-            .send({
-                title: 'jou',
-                author: 'google.com'
-            })
-            .set('Authorization', token)
-            .expect(400)
-
-        await api
-            .post('/api/blogs')
-            .send({
-                author: 'jou',
-                url: 'google.com'
-            })
-            .set('Authorization', token)
-            .expect(400)
     })
 })
 
-describe('DELETE /api/blogs', () => {
+describe('DELETE /api/games', () => {
 
-    const blog = {
-        title: 'Test blog',
-        author: 'Meikä mandoliini',
-        url: 'google.com',
+    const game = {
+        name: 'Test game',
     }
     let id
 
     beforeEach(async () => {
-        await Blog.deleteMany({})
-        const blogObject = new Blog({
-            ...blog,
+        await Game.deleteMany({})
+        const gameObject = new Game({
+            ...game,
             user: userId
         })
-        await blogObject.save()
-        const b = await Blog.findOne({title: 'Test blog'})
+        await gameObject.save()
+        const b = await Game.findOne({name: 'Test game'})
         id = b.id
 
     })
 
     test('returns json', async () => {
-        const url = '/api/blogs/' + id
+        const url = '/api/games/' + id
         await api
             .delete(url)
             .set('Authorization', token)
@@ -164,71 +137,23 @@ describe('DELETE /api/blogs', () => {
             .expect('Content-Type', /application\/json/)
 
     })
-    test('deletes a blog', async () => {
-        const initalBlogs = await Blog.find({})
+    test('deletes a game', async () => {
+        const initalgames = await Game.find({})
 
-        await api.delete('/api/blogs/' + id).set('Authorization', token)
+        await api.delete('/api/games/' + id).set('Authorization', token)
 
-        const blogsAfter = await Blog.find({})
+        const gamesAfter = await Game.find({})
 
-        expect(blogsAfter.length).toEqual(initalBlogs.length - 1)
-
-    })
-    test('deletes correct blog', async () => {
-        await api.delete('/api/blogs/' + id).set('Authorization', token)
-        const deletedBlog = await Blog.findOne({title: 'React patterns'})
-        expect(deletedBlog).toBeNull()
+        expect(gamesAfter.length).toEqual(initalgames.length - 1)
 
     })
-})
+    test('deletes correct game', async () => {
+        await api.delete('/api/games/' + id).set('Authorization', token)
+        const deletedGame = await Game.findOne({name: 'Test game'})
+        expect(deletedGame).toBeNull()
 
-describe('PUT /api/blogs', () => {
-
-    const blog = {
-        title: 'Test blog',
-        author: 'Meikä mandoliini',
-        url: 'google.com',
-    }
-    const updatedBlog = {
-        title: 'Actual blog',
-        author: 'Teikä mandoliini',
-        url: 'amazon.com',
-    }
-    let id
-
-    beforeEach(async () => {
-        await Blog.deleteMany({})
-        const blogObject = new Blog(blog)
-        await blogObject.save()
-        const b = await Blog.findOne({title: 'Test blog'})
-        id = b.id
-
-    })
-
-    test('returns json', async () => {
-        const url = '/api/blogs/' + id
-        await api
-            .put(url)
-            .send(updatedBlog)
-            .expect(200)
-            .expect('Content-Type', /application\/json/)
-
-    })
-    test('updates blog', async () => {
-        const initalBlogs = await Blog.find({})
-
-        await api.put('/api/blogs/' + id).send(updatedBlog)
-
-        const blogsAfter = await Blog.find({})
-
-        expect(blogsAfter.length).toEqual(initalBlogs.length)
-
-        const modified = await Blog.findOne({title: 'Actual blog'})
-        expect(modified).toBeDefined()
-        expect(modified.url).toEqual('amazon.com')
     })
 })
-
 
 
 afterAll(() => {

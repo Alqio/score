@@ -26,7 +26,7 @@ const parseToken = (token) => {
 
 const tokenExtractor = (request, response, next) => {
     const authorizationToken = request.get('authorization')
-    request["token"] = parseToken(authorizationToken)
+    request['token'] = parseToken(authorizationToken)
     next()
 }
 

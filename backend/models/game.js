@@ -3,10 +3,7 @@ const mongoose = require('mongoose')
 
 const gameSchema = mongoose.Schema({
     name: String,
-    likes: {
-        type: Number,
-        default: 0
-    },
+    hash: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
