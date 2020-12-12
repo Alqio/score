@@ -12,7 +12,13 @@ const checkToken = (token) => {
 }
 
 router.get('', async (request, response) => {
-    const games = await Game.find({})
+    const games = (await Game.find({})).map(game => {
+        return {
+            scores: game.scores,
+            name: game.name,
+            id: game.id
+        }
+    })
     response.json(games)
 })
 
@@ -26,6 +32,7 @@ router.post('', async (request, response) => {
         ...request.body,
         user
     })
+    game.hash = await bcrypt.hash(game.id, 1)
 
     const result = await game.save()
 
@@ -37,20 +44,6 @@ router.get('/:id', async (request, response) => {
     const game = await Game.findById(request.params.id)
 
     response.status(200).json(game)
-
-})
-
-router.post('/:id/createHash', async (request, response) => {
-    const token = request.token
-    checkToken(token)
-
-    const game = await Game.findById(request.params.id)
-
-    const hash = await bcrypt.hash(game.id, 1)
-
-    await Game.findOneAndUpdate({_id: request.params.id}, {...game, hash}, {runValidators: true})
-
-    response.send(hash)
 
 })
 

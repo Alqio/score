@@ -49,8 +49,8 @@ describe('GET /api/games', () => {
     test('returns correct games', async () => {
         const res = await api.get('/api/games')
 
-        const contents = res.body.map(r => r.hash)
-        expect(contents[0]).toEqual('testhash')
+        const contents = res.body.map(r => r.name)
+        expect(contents[0]).toEqual('Mestarihiihto Pro')
 
     })
     test('returns scores when requested by id', async () => {
@@ -108,10 +108,10 @@ describe('POST /api/games', () => {
         expect(addedGame).toBeDefined()
 
     })
-    test('adding a game should not set hash', async () => {
+    test('adding a game should set hash', async () => {
         await api.post('/api/games').send(game).set('Authorization', token)
         const addedGame = await Game.findOne({name: 'Test game'})
-        expect(addedGame.hash).not.toBeDefined()
+        expect(addedGame.hash).toBeDefined()
 
     })
 })
