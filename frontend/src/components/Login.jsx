@@ -14,7 +14,7 @@ const Login = ({setUser, createNotification}) => {
             })
 
             window.localStorage.setItem('user', JSON.stringify(user))
-
+            console.log(user)
             setUser(user)
         } catch (e) {
             createNotification('wrong username or password', 'red')
