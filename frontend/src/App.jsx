@@ -5,6 +5,7 @@ import Notification from "./components/Notification";
 import Logout from "./components/Logout";
 import Games from "./components/Games";
 import gameService from './services/game'
+import AddGame from "./components/AddGame";
 
 
 const App = () => {
@@ -19,13 +20,17 @@ const App = () => {
     const [user, setUser] = useState(null)
 
     useEffect(() => {
-        gameService.getGames()
-            .then(result => {
-                setGames(result)
-            })
-            .catch(e => {
-                console.log(e)
-            })
+        let mounted = true;
+        const getGames = async () => {
+            const newGames = await gameService.getGames()
+            setGames(newGames)
+        }
+        if (mounted) {
+            getGames()
+        }
+
+        return () => mounted = false;
+
     }, [])
 
     const createNotification = (message, color) => {
@@ -51,13 +56,24 @@ const App = () => {
         }
     }
 
+    const loggedIn = () => {
+        if (user) {
+            return <AddGame setGames={setGames} games={games}/>
+        } else {
+            return null
+        }
+    }
+
     return (
         <div className="App">
             <Notification message={notification.message} color={notification.color}/>
 
             {loginForm()}
-
+            <br/>
+            {loggedIn()}
             <Games games={games}/>
+
+
 
         </div>
     );
