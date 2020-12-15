@@ -29,9 +29,29 @@ const App = () => {
             getGames()
         }
 
+        if (localStorage.getItem('user')) {
+            const u = JSON.parse(localStorage.getItem('user'))
+            setUser(u)
+        }
+
         return () => mounted = false;
 
     }, [])
+
+    const onLogin = async (user) => {
+        setUser(user)
+        window.localStorage.setItem('user', JSON.stringify(user))
+        console.log(user)
+        const newGames = await gameService.getGames()
+        setGames(newGames)
+    }
+
+    const onLogout = async () => {
+        setUser(null)
+        localStorage.removeItem('user')
+        const newGames = await gameService.getGames()
+        setGames(newGames)
+    }
 
     const createNotification = (message, color) => {
         setNotification({
@@ -44,13 +64,14 @@ const App = () => {
         if (user) {
             return (
                 <div>
-                    <p>Logged in as {user.name}</p> <Logout setUser={setUser}/>
+                    <p>Logged in as {user.name}</p>
+                    <Logout onLogout={onLogout}/>
                 </div>
             )
         } else {
             return (
                 <div>
-                    <Login createNotification={createNotification} setUser={setUser}/>
+                    <Login createNotification={createNotification} onLogin={onLogin}/>
                 </div>
             )
         }

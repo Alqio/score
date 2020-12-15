@@ -12,12 +12,28 @@ const checkToken = (token) => {
 }
 
 router.get('', async (request, response) => {
+    const token = request.token
+    let isLoggedIn = true
+    let user
+    try {
+        checkToken(token)
+        user = await User.findById(token.id)
+    } catch (e) {
+        isLoggedIn = false
+    }
     const games = (await Game.find({})).map(game => {
-        return {
+
+        const gameData = {
             scores: game.scores,
             name: game.name,
             id: game.id
         }
+
+        if (isLoggedIn && game.user.toString() === user.id) {
+            gameData.hash = game.hash
+        }
+
+        return gameData
     })
     response.json(games)
 })
@@ -76,11 +92,13 @@ router.post('/:gameId/scores/', async (request, response) => {
 
     const newScores = [...game.scores, score]
 
-    const result = await Game.findOneAndUpdate(
+    await Game.findOneAndUpdate(
         {_id: request.params.gameId},
         {scores: newScores},
         {runValidators: true}
     )
+
+    const result = await Game.findById(request.params.gameId)
 
     response.status(201).json(result)
 

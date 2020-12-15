@@ -4,8 +4,16 @@ import Game from "./Game";
 const Games = ({games}) => {
     return (
         <div>
+            <h1>Games</h1>
             {games.length === 0 ? <p>No games added</p> : null}
-            {games.map(game => <Game key={game.id} game={game}/>)}
+            {games.map(game => {
+                return (
+                    <div key={game.id}>
+                        <Game game={game}/>
+                        <p>---</p>
+                    </div>
+                )
+            })}
         </div>
     )
 }

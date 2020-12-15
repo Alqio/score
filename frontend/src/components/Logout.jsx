@@ -1,11 +1,10 @@
 import React from 'react'
 
-const Logout = ({setUser}) => {
+const Logout = ({onLogout}) => {
 
     const handleLogout = async (event) => {
         event.preventDefault()
-        setUser(null)
-        localStorage.removeItem('user')
+        onLogout()
     }
 
     return (
