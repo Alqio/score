@@ -15,7 +15,7 @@ const useField = (type) => {
     }
 }
 
-const AddGame = ({games, setGames}) => {
+const AddGame = ({games, setGames, createNotification}) => {
     const name = useField('text')
 
     const createGame = async (event) => {
@@ -27,12 +27,14 @@ const AddGame = ({games, setGames}) => {
         const createdGame = await gameService.createGame(game)
         console.log(createdGame)
         setGames(games.concat(createdGame))
+        createNotification('Added game ' + game.name, 'green')
     }
 
     return (
         <div>
             <form onSubmit={createGame}>
-                name: <input {...name}/>
+                Game name: <input {...name}/>
+                <br/>
                 <button type='submit'>Create</button>
             </form>
         </div>

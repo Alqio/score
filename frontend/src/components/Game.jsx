@@ -1,7 +1,8 @@
 import React from 'react'
+import {useHistory} from "react-router-dom";
 
 const Game = ({game}) => {
-
+    const history = useHistory()
     const scores = () => {
         return game.scores
             .sort((a, b) => b.score - a.score)
@@ -22,11 +23,17 @@ const Game = ({game}) => {
             return null
     }
 
+    const redirect = (event) => {
+        event.preventDefault()
+        history.push('/')
+    }
+
     return (
         <div>
             <h3>{game.name}</h3>
             <p>id: {game.id}</p>
             {hash()}
+            <button onClick={redirect}>Back</button>
             {scoreText()}
             <ol>
                 {scores()}

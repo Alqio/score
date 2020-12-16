@@ -1,18 +1,16 @@
 import './App.css';
-import Login from "./components/Login";
+import Login from './components/Login';
 import React, {useEffect, useState} from 'react'
-import Notification from "./components/Notification";
-import Logout from "./components/Logout";
-import Games from "./components/Games";
+import Notification from './components/Notification';
+import Logout from './components/Logout';
+import Games from './components/Games';
 import gameService from './services/game'
-import AddGame from "./components/AddGame";
+import AddGame from './components/AddGame';
 import {
-    BrowserRouter as Router,
     Switch, Route, Link,
-    useParams, useHistory,
     useRouteMatch
-} from "react-router-dom"
-import Game from "./components/Game";
+} from 'react-router-dom'
+import Game from './components/Game';
 
 
 const App = () => {
@@ -83,28 +81,28 @@ const App = () => {
             )
         }
     }
+
     const Menu = () => {
         const padding = {
             paddingRight: 5
         }
         return (
             <div>
-                <Link to='/' style={padding}>anecdotes</Link>
-                <Link to='/create' style={padding}>create new</Link>
-                <Link to='/about' style={padding}>about</Link>
+                <Link to='/' style={padding}>Home</Link>
+                <Link to='/create' style={padding}>Add game</Link>
+                <Link to='/about' style={padding}>About</Link>
             </div>
         )
     }
 
     const loggedIn = () => {
         if (user) {
-            return <AddGame setGames={setGames} games={games}/>
+            return <AddGame setGames={setGames} games={games} createNotification={createNotification}/>
         } else {
             return null
         }
     }
     const match = useRouteMatch('/games/:id')
-    console.log("match", match)
     const game = match ? games.find(game => game.id === match.params.id) : null
 
     return (
@@ -115,7 +113,7 @@ const App = () => {
                 <Route path='/about'>
                     <p>A game scoreboard</p>
                 </Route>
-                <Route path="/games/:id">
+                <Route path='/games/:id'>
                     <Game game={game}/>
                 </Route>
                 <Route path='/create'>

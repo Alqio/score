@@ -11,7 +11,7 @@ const Games = ({games}) => {
             {games.map(game => {
                 return (
                     <div key={game.id}>
-                        <Link to={'/games/' + game.id}>{game.name}</Link>
+                        <h3><Link to={'/games/' + game.id}>{game.name}</Link></h3>
                     </div>
                 )
             })}
