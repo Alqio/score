@@ -1,5 +1,7 @@
 import React from 'react'
-import Game from "./Game";
+import {
+    Link
+} from "react-router-dom"
 
 const Games = ({games}) => {
     return (
@@ -9,8 +11,7 @@ const Games = ({games}) => {
             {games.map(game => {
                 return (
                     <div key={game.id}>
-                        <Game game={game}/>
-                        <p>---</p>
+                        <Link to={'/games/' + game.id}>{game.name}</Link>
                     </div>
                 )
             })}

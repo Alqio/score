@@ -6,6 +6,13 @@ import Logout from "./components/Logout";
 import Games from "./components/Games";
 import gameService from './services/game'
 import AddGame from "./components/AddGame";
+import {
+    BrowserRouter as Router,
+    Switch, Route, Link,
+    useParams, useHistory,
+    useRouteMatch
+} from "react-router-dom"
+import Game from "./components/Game";
 
 
 const App = () => {
@@ -76,6 +83,18 @@ const App = () => {
             )
         }
     }
+    const Menu = () => {
+        const padding = {
+            paddingRight: 5
+        }
+        return (
+            <div>
+                <Link to='/' style={padding}>anecdotes</Link>
+                <Link to='/create' style={padding}>create new</Link>
+                <Link to='/about' style={padding}>about</Link>
+            </div>
+        )
+    }
 
     const loggedIn = () => {
         if (user) {
@@ -84,18 +103,29 @@ const App = () => {
             return null
         }
     }
+    const match = useRouteMatch('/games/:id')
+    console.log("match", match)
+    const game = match ? games.find(game => game.id === match.params.id) : null
 
     return (
-        <div className="App">
+        <div className='App'>
+            <Menu/>
             <Notification message={notification.message} color={notification.color}/>
-
-            {loginForm()}
-            <br/>
-            {loggedIn()}
-            <Games games={games}/>
-
-
-
+            <Switch>
+                <Route path='/about'>
+                    <p>A game scoreboard</p>
+                </Route>
+                <Route path="/games/:id">
+                    <Game game={game}/>
+                </Route>
+                <Route path='/create'>
+                    {loggedIn()}
+                </Route>
+                <Route path='/'>
+                    {loginForm()}
+                    <Games games={games}/>
+                </Route>
+            </Switch>
         </div>
     );
 }
