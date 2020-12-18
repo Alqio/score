@@ -16,9 +16,14 @@ const Game = ({game}) => {
             return <h4>Scores</h4>
     }
 
-    const hash = () => {
+    const adminInfo = () => {
         if (game.hash)
-            return <p>Hash: {game.hash}</p>
+            return (
+                <div>
+                    <p>ID: {game.id}</p>
+                    <p>Hash: {game.hash}</p>
+                </div>
+            )
         else
             return null
     }
@@ -31,8 +36,8 @@ const Game = ({game}) => {
     return (
         <div>
             <h3>{game.name}</h3>
-            <p>id: {game.id}</p>
-            {hash()}
+
+            {adminInfo()}
             <button onClick={redirect}>Back</button>
             {scoreText()}
             <ol>

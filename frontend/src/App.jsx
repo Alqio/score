@@ -89,7 +89,7 @@ const App = () => {
         return (
             <div>
                 <Link to='/' style={padding}>Home</Link>
-                <Link to='/create' style={padding}>Add game</Link>
+                {user !== null ? <Link to='/create' style={padding}>Add game</Link> : null}
                 <Link to='/about' style={padding}>About</Link>
             </div>
         )
